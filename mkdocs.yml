@@ -1,5 +1,2 @@
 site_name: My Docs
 docs_dir: src
-
-nav:
-  - Home: best_pairs_finder
