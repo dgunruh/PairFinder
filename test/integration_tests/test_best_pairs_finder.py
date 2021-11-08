@@ -8,6 +8,49 @@ class TestBestPairsFinder(TestCase):
     def test_nothing(self):
         self.assertTrue(True)
 
+    def test_check_data_type(self):
+        '''
+        YIMING
+        Check if object contains tuples of particle coordinates.
+        '''
+        pass
+
+    def test_creates_combinations(self):
+        '''
+        YIMING
+        Checks whether number of combinations of particles is correct,
+        and if all combinations are unique
+        '''
+        pass
+
+    def test_get_pair_distance(self):
+        '''
+        LUQING
+        Checks whether particle distance was calculated correctly
+        '''
+        pass
+
+    def test_get_summed_pair_distance(self):
+        '''
+        LUQING
+        Checks whether particle distances were summed correctly
+        '''
+        pass
+
+    def test_sort_pair(self):
+        '''
+        YIMING
+        Checks whether summed particle distance is invariant to particle pair order
+        '''
+        pass
+
+    def test_choose_best_pair(self):
+        '''
+        Checks whether minimal particle combination was chosen correctly, from
+        list of combinations and their respective summed distances
+        '''
+        pass
+
     @skip
     def test_find_best_pairs_zero_particles(self):
         pairs_finder = BestPairsFinder()
