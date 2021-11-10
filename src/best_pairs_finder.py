@@ -6,37 +6,37 @@ class BestPairsFinder:
         """
         pass
 
-    def check_data_type(self):
+    def _check_data_type(self):
         '''
         Check if object contains tuples of particle coordinates.
         '''
         pass
 
-    def creates_combinations(self):
+    def _create_combinations(self):
         '''
-        Creates all possible combinations of particles
-        '''
-        pass
-
-    def get_pair_distance(self):
-        '''
-        Calculate the distance between two particles
+        Create all possible combinations of particles.
         '''
         pass
 
-    def get_summed_pair_distance(self):
+    def _get_pair_distance(self):
         '''
-        Sum the particle pair distances
-        '''
-        pass
-
-    def sort_pair(self):
-        '''
-        Change pair order and make sure that total distance remains the same
+        Calculate the distance between two particles.
         '''
         pass
 
-    def choose_best_pair(self):
+    def _get_summed_pair_distance(self):
+        '''
+        Sum the particle pair distances.
+        '''
+        pass
+
+    def _sort_pair(self):
+        '''
+        Change pair order and make sure that total distance remains the same.
+        '''
+        pass
+
+    def _choose_best_pair(self):
         '''
         Choose the best combination of particle pairs from a list of
         combinations and their respective summed distances
