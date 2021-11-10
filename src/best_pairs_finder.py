@@ -2,7 +2,13 @@ class BestPairsFinder:
 
     def find_best_pairs(self, particle_positions):
         """
-        Here you can insert docstring documentation, if needed
+        Find pairs of closest particles given their coordinates.
+
+        This function does the following:
+
+        Arguments:
+            particle_positions - positions of N particles in D dimensions
+                type == ND array
         """
         pass
 

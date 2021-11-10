@@ -1,4 +1,5 @@
 from unittest import TestCase, skip
+import unittest.mock as mock
 
 from src.best_pairs_finder import BestPairsFinder
 
@@ -50,6 +51,12 @@ class TestBestPairsFinder(TestCase):
         list of combinations and their respective summed distances
         '''
         pass
+
+    def test_find_best_pairs(self):
+    	'''
+    	
+    	'''
+    	pass
 
     @skip
     def test_find_best_pairs_zero_particles(self):
