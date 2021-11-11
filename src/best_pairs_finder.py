@@ -1,3 +1,7 @@
+import itertools
+
+
+
 class BestPairsFinder:
 
     def find_best_pairs(self, particle_positions):
@@ -6,17 +10,22 @@ class BestPairsFinder:
         """
         pass
 
-    def _check_data_type(self):
+    def _check_data_type(self, particle_positions):
         '''
-        Check if object contains tuples of particle coordinates.
+        Check if input is a list
         '''
-        pass
+        return type(particle_positions)
 
-    def _create_combinations(self):
+
+    def _create_combinations(self, particle_positions):
         '''
         Create all possible combinations of particles.
         '''
-        pass
+        comb = list((i+1, j+1) for ((i, _), (j, _)) in
+                 itertools.combinations(enumerate(particle_positions), 2))
+        self.combinations = comb
+        return self.combinations
+
 
     def _get_pair_distance(self):
         '''
@@ -30,15 +39,11 @@ class BestPairsFinder:
         '''
         pass
 
-    def _sort_pair(self):
-        '''
-        Change pair order and make sure that total distance remains the same.
-        '''
-        pass
-
     def _choose_best_pair(self):
         '''
         Choose the best combination of particle pairs from a list of
         combinations and their respective summed distances
         '''
         pass
+
+
