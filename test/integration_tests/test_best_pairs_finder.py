@@ -1,9 +1,11 @@
 from unittest import TestCase, skip
-
-from src.best_pairs_finder import BestPairsFinder
+from PairFinder.src.best_pairs_finder import BestPairsFinder
+import unittest
 
 
 class TestBestPairsFinder(TestCase):
+    def test_setup(self):
+        self.pairs_finder = BestPairsFinder()
 
     def test_nothing(self):
         self.assertTrue(True)
@@ -11,9 +13,11 @@ class TestBestPairsFinder(TestCase):
     def test__check_data_type(self):
         '''
         YIMING
-        Check if object contains tuples of particle coordinates.
+        Check if input object is a list.
         '''
-        pass
+        pairs_finder = BestPairsFinder()
+        self.assertTrue(pairs_finder._check_data_type(
+            particle_positions=[5, 10, 15, 20]) == list)
 
     def test__create_combinations(self):
         '''
@@ -21,7 +25,14 @@ class TestBestPairsFinder(TestCase):
         Check whether number of combinations of particles is correct,
         and if all combinations are unique
         '''
-        pass
+        pairs_finder = BestPairsFinder()
+        combinations = pairs_finder._create_combinations(
+            particle_positions=[5, 10, 15, 20])
+        print(combinations)
+        self.assertTrue(type(combinations) == list)
+        self.assertTrue(type(combinations[0]) == tuple)
+        self.assertEqual(len(combinations), 6)  # unique pairs out of list
+        self.assertIn((1, 2), combinations)
 
     def test__get_pair_distance(self):
         '''
@@ -34,13 +45,6 @@ class TestBestPairsFinder(TestCase):
         '''
         LUQING
         Check whether particle distances were summed correctly.
-        '''
-        pass
-
-    def test__sort_pair(self):
-        '''
-        YIMING
-        Check whether summed distances is invariant to particle pair order.
         '''
         pass
 
@@ -107,3 +111,7 @@ class TestBestPairsFinder(TestCase):
             pairs.sort()
         self.assertCountEqual(
             [[(0, 0), (1, 1)], [(20, 20), (21, 21)]], best_pairs)
+
+
+if __name__ == '__main__':
+    unittest.main()
