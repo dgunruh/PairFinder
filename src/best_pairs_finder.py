@@ -12,10 +12,11 @@ class BestPairsFinder:
         Find pairs of closest particles given their coordinates.
 
         This function does the following:
-        1. Checks that the input datatype is correct
-        2. Enumarate every possible particle pairing combination
-        3. Computes the summed pair distance for each combination
-        4. Returns the combination that has the smallest summed distance
+        1. Check that the input datatype is correct
+        2. Enumarate every possible particle pairing
+        3. Create combinations of these pairs to include every particle
+        4. Compute the summed pair distance for each combination
+        5. Return the combination that has the smallest summed distance
 
         Arguments:
             particle_positions - positions of N particles in D dimensions
@@ -28,13 +29,14 @@ class BestPairsFinder:
         """
         # Step 1: Check type
         assert type(self._check_data_type(particle_positions)) == list
-        # Step 2: Enumerate paired combinations of particles
+        # Step 2: Enumerate all pairs of particles
         pairs = self._create_pairs(particle_positions)
+        # Step 3: Create combinations of these pairs
         combinations = self._create_combinations(
             pairs, [], [], len(particle_positions))
-        # Step 3: Compute summed distances
+        # Step 4: Compute summed distances
         summed_distances = self._get_summed_pair_distance(combinations)
-        # Step 4: Return combo that minimizes summed distances
+        # Step 5: Return combo that minimizes summed distances
         return self._choose_best_combination(combinations, summed_distances)
 
     def _check_data_type(self, particle_positions):
