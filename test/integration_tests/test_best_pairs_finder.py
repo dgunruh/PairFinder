@@ -94,7 +94,8 @@ class TestBestPairsFinder(TestCase):
         subject._check_data_type.assert_called_with(particle_positions)
         subject._create_combinations.assert_called_with(particle_positions)
         subject._get_summed_pair_distance.assert_called_with(combinations)
-        subject._choose_best_pair.assert_called_with(summed_distances)
+        subject._choose_best_pair.assert_called_with(
+            (combinations, summed_distances))
         self.assertEqual(result, best_pairing)
 
     @skip

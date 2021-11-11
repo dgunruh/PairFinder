@@ -13,8 +13,7 @@ class BestPairsFinder:
 
         This function does the following:
         1. Checks that the input datatype is correct
-        2. Calculates distances between all points and nemuerates
-           every two-pair combination possible
+        2. Enumarate every possible particle pairing combination
         3. Computes the summed pair distance for each combination
         4. Returns the combination that has the smallest summed distance
 
@@ -28,17 +27,20 @@ class BestPairsFinder:
                 type == list of tuples
         """
         # Step 1: Check type
-        self._check_data_type(particle_positions)
-        # Step 2: Enumerate distances
+        assert type(self._check_data_type(particle_positions)) == list
+        # Step 2: Enumerate paired combinations of particles
         combinations = self._create_combinations(particle_positions)
         # Step 3: Compute summed distances
         summed_distances = self._get_summed_pair_distance(combinations)
         # Step 4: Return combo that minimizes summed distances
-        return self._choose_best_pair(summed_distances)
+        return self._choose_best_pair(combinations, summed_distances)
 
     def _check_data_type(self, particle_positions):
         """
         Check if input is a list.
+
+        To check if list of tuples, we can do something like
+        assert all(isinstance(item, tuple) for item in particle_positions), 'message'
         """
         return type(particle_positions)
 
@@ -46,7 +48,7 @@ class BestPairsFinder:
         """
         Create all possible combinations of particles.
         """
-        comb = list((i+1, j+1) for ((i, _), (j, _)) in
+        comb = list((i + 1, j + 1) for ((i, _), (j, _)) in
                     itertools.combinations(enumerate(particle_positions), 2))
         self.combinations = comb
         return self.combinations
@@ -76,7 +78,7 @@ class BestPairsFinder:
         be in the same order as distances.
 
         distances (list) - the total particle distance for each combination.
-        Needs to be in the same order as combinations. 
+        Needs to be in the same order as combinations.
 
         ----------------------------------------------------------------------
 
