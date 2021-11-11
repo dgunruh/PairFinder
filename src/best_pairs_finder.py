@@ -16,14 +16,14 @@ class BestPairsFinder:
         '''
         return type(particle_positions)
 
-    def _create_combinations(self, particle_positions):
+    def _create_pairs(self, particle_positions):
         '''
-        Create all possible combinations of particles.
+        Create all possible pairs of particles.
         '''
-        comb = list((i+1, j+1) for ((i, _), (j, _)) in
-                    itertools.combinations(enumerate(particle_positions), 2))
-        self.combinations = comb
-        return self.combinations
+        pairs = list((i+1, j+1) for ((i, _), (j, _)) in
+                     itertools.combinations(enumerate(particle_positions), 2))
+        self.pairs = pairs
+        return self.pairs
 
     def _get_pair_distance(self):
         '''
@@ -37,7 +37,7 @@ class BestPairsFinder:
         '''
         pass
 
-    def _choose_best_pair(self, combinations, distances):
+    def _choose_best_combination(self, combinations, distances):
         '''
         Choose the best combination of particle pairs from a list of
         combinations and their respective summed distances
@@ -59,5 +59,5 @@ class BestPairsFinder:
         particle distance, then the first instance is chosen.
         '''
         min_distance_index = np.argmin(distances)
-        min_combination = combinations[min_distance_index]
-        return min_combination
+        best_combination = combinations[min_distance_index]
+        return best_combination

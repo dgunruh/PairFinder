@@ -19,20 +19,19 @@ class TestBestPairsFinder(TestCase):
         self.assertTrue(pairs_finder._check_data_type(
             particle_positions=[5, 10, 15, 20]) == list)
 
-    def test__create_combinations(self):
+    def test__create_pairs(self):
         '''
         YIMING
         Check whether number of combinations of particles is correct,
         and if all combinations are unique
         '''
         pairs_finder = BestPairsFinder()
-        combinations = pairs_finder._create_combinations(
+        pairs = pairs_finder._create_pairs(
             particle_positions=[5, 10, 15, 20])
-        print(combinations)
-        self.assertTrue(type(combinations) == list)
-        self.assertTrue(type(combinations[0]) == tuple)
-        self.assertEqual(len(combinations), 6)  # unique pairs out of list
-        self.assertIn((1, 2), combinations)
+        self.assertTrue(type(pairs) == list)
+        self.assertTrue(type(pairs[0]) == tuple)
+        self.assertEqual(len(pairs), 6)  # unique pairs out of list
+        self.assertIn((1, 2), pairs)
 
     def test__get_pair_distance(self):
         '''
