@@ -1,3 +1,7 @@
+import numpy as np
+import itertools
+
+
 class BestPairsFinder:
 
     def __init__(self):
@@ -32,17 +36,20 @@ class BestPairsFinder:
         # Step 4: Return combo that minimizes summed distances
         return self._choose_best_pair(summed_distances)
 
-    def _check_data_type(self):
+    def _check_data_type(self, particle_positions):
         """
-        Check if object contains tuples of particle coordinates.
+        Check if input is a list.
         """
-        pass
+        return type(particle_positions)
 
-    def _create_combinations(self):
+    def _create_combinations(self, particle_positions):
         """
         Create all possible combinations of particles.
         """
-        pass
+        comb = list((i+1, j+1) for ((i, _), (j, _)) in
+                    itertools.combinations(enumerate(particle_positions), 2))
+        self.combinations = comb
+        return self.combinations
 
     def _get_pair_distance(self):
         """
@@ -56,15 +63,27 @@ class BestPairsFinder:
         """
         pass
 
-    def _sort_pair(self):
-        """
-        Change pair order and make sure that total distance remains the same.
-        """
-        pass
-
-    def _choose_best_pair(self):
+    def _choose_best_pair(self, combinations, distances):
         """
         Choose the best combination of particle pairs from a list of
         combinations and their respective summed distances
+
+        ----------------------------------------------------------------------
+
+        Args:
+
+        combinations (list) - all possible combinations of particles. Needs to
+        be in the same order as distances.
+
+        distances (list) - the total particle distance for each combination.
+        Needs to be in the same order as combinations. 
+
+        ----------------------------------------------------------------------
+
+        Returns the element of combinations which corresponds to the smallest
+        total particle distance. If multiple combinations are equal in total
+        particle distance, then the first instance is chosen.
         """
-        pass
+        min_distance_index = np.argmin(distances)
+        min_combination = combinations[min_distance_index]
+        return min_combination
