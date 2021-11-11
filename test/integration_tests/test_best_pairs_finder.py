@@ -54,8 +54,13 @@ class TestBestPairsFinder(TestCase):
 
     def test_find_best_pairs(self):
     	'''
-    	
+    	SAM
+
     	'''
+    	subject = BestPairsFinder()
+    	subject._check_data_type = mock.MagicMock(name='check_dtype',
+                                                  return_value=True)
+    	
     	pass
 
     @skip
