@@ -1,7 +1,7 @@
 from unittest import TestCase, skip
 import unittest
 import unittest.mock as mock
-from PairFinder.src.best_pairs_finder import BestPairsFinder
+from pairfinder.src.best_pairs_finder import BestPairsFinder
 
 
 class TestBestPairsFinder(TestCase):
