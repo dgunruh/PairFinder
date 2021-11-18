@@ -27,7 +27,7 @@ class BestPairsFinder:
                 type == list of tuples
         """
         # Step 1: Check type
-        assert type(self._check_data_type(particle_positions)) == list
+        assert self._check_data_type(particle_positions) == list
         # Step 2: Enumerate paired combinations of particles
         pairs = self._create_pairs(particle_positions)
         combinations = self._create_combinations(
