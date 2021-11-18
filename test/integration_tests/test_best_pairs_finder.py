@@ -181,6 +181,7 @@ class TestBestPairsFinder(TestCase):
         self.assertCountEqual(
             [[(0, 0), (1, 1)], [(20, 20), (21, 21)]], best_pairs)
 
+    @skip
     def test_find_best_pairs_100_particles_in_one_dimensions(self):
         '''
         Generate positions for 100 particles as a random array.
