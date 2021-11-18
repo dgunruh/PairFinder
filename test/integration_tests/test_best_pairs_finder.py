@@ -181,6 +181,30 @@ class TestBestPairsFinder(TestCase):
         self.assertCountEqual(
             [[(0, 0), (1, 1)], [(20, 20), (21, 21)]], best_pairs)
 
+    def test_find_best_pairs_100_particles_in_one_dimensions(self):
+        '''
+        Generate positions for 100 particles as a random array.
+        '''
+        '''
+        particles = np.random.randint(-100, 100, size=100)
+        '''
+        '''
+        Positions for 100 particles.
+        '''
+        particles = [-5    2  -64   15   44  -27   36  -84   -3  -21  -70   59  -91   86  -85   16   44   94  -63   14  -39  -10    4  -83  -50   45   37 -100  -72  -89   11   98   75   57   93    0  -40  -61   97  -77   64   80  -80  -43   27  -40  -78   41   15  -51   96  -91   47   -6  -42   44  -48   33    8  -46   -2  -72    0   84   34   22  -11  -90   74    6   57  -30    7    5   46  -60  -78   -9  -32  -11   28   29  -13  -43   84   64   80   36   44   45  -44  -17  -10  -17   95   25  -40   45  -87   37]
+
+        '''
+        Sort particles based on position and save the particle index for grouping near pairs.
+        '''
+        pair_index = np.argsort(particles)
+
+        '''
+        Calculate distance of near pairs and sum them as total distance.
+        '''
+        distance = 0
+        for i in pair_index:
+            if (i % 2) == 0:
+                distance = distance + particles[pair_index[i + 1]] - particles[pair_index[i]]
 
 if __name__ == '__main__':
     unittest.main()

@@ -12,11 +12,10 @@ class BestPairsFinder:
         Find pairs of closest particles given their coordinates.
 
         This function does the following:
-        1. Check that the input datatype is correct
-        2. Enumarate every possible particle pairing
-        3. Create combinations of these pairs to include every particle
-        4. Compute the summed pair distance for each combination
-        5. Return the combination that has the smallest summed distance
+        1. Checks that the input datatype is correct
+        2. Enumarate every possible particle pairing combination
+        3. Computes the summed pair distance for each combination
+        4. Returns the combination that has the smallest summed distance
 
         Arguments:
             particle_positions - positions of N particles in D dimensions
@@ -29,16 +28,13 @@ class BestPairsFinder:
         """
         # Step 1: Check type
         assert type(self._check_data_type(particle_positions)) == list
-        # Step 2: Enumerate all pairs of particles
+        # Step 2: Enumerate paired combinations of particles
         pairs = self._create_pairs(particle_positions)
-        # Step 3: Create combinations of these pairs
         combinations = self._create_combinations(
             pairs, [], [], len(particle_positions))
-        # Step 4: Compute summed distances
-        summed_distances = []
-        for c in combinations:
-            summed_distances.append(self._get_summed_pair_distance(c, particle_positions))
-        # Step 5: Return combo that minimizes summed distances
+        # Step 3: Compute summed distances
+        summed_distances = self._get_summed_pair_distance(combinations)
+        # Step 4: Return combo that minimizes summed distances
         return self._choose_best_combination(combinations, summed_distances)
 
     def _check_data_type(self, particle_positions):
@@ -96,23 +92,17 @@ class BestPairsFinder:
                                                  already_contained_indices,
                                                  nump-1)
 
-    def _get_pair_distance(self, p1, p2):
+    def _get_pair_distance(self):
         """
         Calculate the distance between two particles.
         """
-        return np.linalg.norm(np.subtract(p1, p2))
+        pass
 
-    def _get_summed_pair_distance(self, combination, particle_positions):
+    def _get_summed_pair_distance(self):
         """
-        Sum the particle pair distances of a combination of particle pairs, where
-        the pairs are listed as indices of particle positions
+        Sum the particle pair distances.
         """
-        distance = 0
-        for pair in combination:
-            p1 = particle_positions[pair[0]]
-            p2 = particle_positions[pair[1]]
-            distance += self._get_pair_distance(p1, p2)
-        return distance
+        pass
 
     def _choose_best_combination(self, combinations, distances):
         """
