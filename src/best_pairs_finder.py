@@ -1,6 +1,7 @@
 import numpy as np
 import itertools
 import pandas as pd
+from scipy.spatial import distance_matrix
 
 
 class BestPairsFinder:
@@ -59,10 +60,10 @@ class BestPairsFinder:
             idx_to_coord_map = {i: coord for i, coord in
                                 enumerate(particle_positions)}
             # Step 3: Create distance matrix between all points
-            # distance_mtx = <function call here> (Yiming)
+            distance_mtx = self._compute_distance_matrix(particle_positions)
             # Step 4: Pair particles based on smallest distance
-            N = len(particle_positions)
-            distance_mtx = pd.DataFrame(distance_mtx, columns=np.arange(N))
+            n = len(particle_positions)
+            distance_mtx[range(n), range(n)] = np.inf
             self.pairs = []
             self._get_pairs_from_distance_matrix(distance_mtx, self.pairs)
             # Step 5: Convert particle indices to coordinates using map
@@ -212,3 +213,9 @@ class BestPairsFinder:
             distance_mtx.drop(index, axis=1, inplace=True)
         # call recursively
         self._get_pairs_from_distance_matrix(distance_mtx, result)
+
+    def _compute_distance_matrix(self, particle_positions):
+        """Generate distance matrix given a set of particle positions."""
+        df = pd.DataFrame(particle_positions)
+        dis_matrix = pd.DataFrame(distance_matrix(df.values, df.values))
+        return dis_matrix
