@@ -2,7 +2,7 @@ from unittest import TestCase, skip
 import unittest
 import unittest.mock as mock
 import numpy as np
-from PairFinder.src.best_pairs_finder import BestPairsFinder
+from pairfinder.src.best_pairs_finder import BestPairsFinder
 import pandas as pd
 
 
@@ -10,17 +10,23 @@ class TestBestPairsFinder(TestCase):
     def test_setup(self):
         self.pairs_finder = BestPairsFinder()
 
-    def test__get_pairs_from_distance_matrix
-        """doc here"""
+    def test__get_pairs_from_distance_matrix(self):
+        """Test selecting pairs based on distance matrix."""
         for N in range(6):
-            rand_mtx = np.random.rand(N, N)*10
-            distance_mtx = (rand_mtx + rand_mtx.T)/2
+            seed = np.arange(N**2).reshape(N, N)
+            distance_mtx = (seed + seed.T) / 2
             distance_mtx[range(N), range(N)] = np.inf
             distance_mtx = pd.DataFrame(distance_mtx, columns=np.arange(N))
 
             subject = BestPairsFinder()
             subject.result = []
-            get_pairs_from_distance_matrix(distance_mtx, subject.result)
+            subject._get_pairs_from_distance_matrix(distance_mtx,
+                                                    subject.result)
+            particles = np.arange(N)
+            n = 2
+            expected_pairing = [tuple(particles[i * n:(i + 1) * n])
+                                for i in range((N + n - 1) // n )]
+            self.assertEqual(expected_pairing, subject.result)
 
     def test__check_iterable(self):
         """
@@ -124,13 +130,14 @@ class TestBestPairsFinder(TestCase):
         subject._create_combinations = mock.MagicMock(
             name='_create_combinations', return_value=combinations)
         # step 4
-        summed_distances = [2, 4, 4]
+        summed_distances = 1
         subject._get_summed_pair_distance = mock.MagicMock(
             name='_get_summed_pair_distance', return_value=summed_distances)
         # step 5
         best_pairing = combinations[0]
-        subject._choose_best_pair = mock.MagicMock(name='_choose_best_pair',
-                                                   return_value=best_pairing)
+        subject._choose_best_combination = mock.MagicMock(
+            name='_choose_best_combination',
+            return_value=best_pairing)
         # actually make the call
         particle_positions = [(1), (2), (3), (4)]
         result = subject.find_best_pairs(particle_positions, method='enumerate')
@@ -138,10 +145,11 @@ class TestBestPairsFinder(TestCase):
         subject._check_data_type.assert_called_with(particle_positions)
         subject._create_pairs.assert_called_with(particle_positions)
         subject._create_combinations.assert_called_with(
-            (pairs, [], [], len(particle_positions)))
-        subject._get_summed_pair_distance.assert_called_with(combinations)
-        subject._choose_best_pair.assert_called_with(
-            (combinations, summed_distances))
+            pairs, [], [], len(particle_positions))
+        subject._get_summed_pair_distance.assert_called_with(
+            combinations[-1], particle_positions)
+        subject._choose_best_combination.assert_called_with(
+            combinations, [1, 1, 1])
         self.assertEqual(result, best_pairing)
         # TODO check method = 'graph' call
 
@@ -157,7 +165,7 @@ class TestBestPairsFinder(TestCase):
         test1 = pairs_finder._compute_distance_matrix([[2,3], [3,6], [4,5], [2,3]])
         self.assertEqual(test1.iloc[0, 0], 0)
         self.assertAlmostEqual(test1.iloc[1, 0], 3.16, 2)
-        self.assertEqual(len(test1.index), len(test1.columns)
+        self.assertEqual(len(test1.index), len(test1.columns))
 
     @skip
     def test_find_best_pairs_zero_particles(self):

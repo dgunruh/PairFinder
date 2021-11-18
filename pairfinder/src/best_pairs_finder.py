@@ -63,6 +63,7 @@ class BestPairsFinder:
             distance_mtx = self._compute_distance_matrix(particle_positions)
             # Step 4: Pair particles based on smallest distance
             n = len(particle_positions)
+            # set diagonal to inf to prevent selecting self
             distance_mtx[range(n), range(n)] = np.inf
             self.pairs = []
             self._get_pairs_from_distance_matrix(distance_mtx, self.pairs)
@@ -169,7 +170,7 @@ class BestPairsFinder:
         best_combination = combinations[min_distance_index]
         return best_combination
 
-    def _get_pairs_from_distance_matrix(distance_mtx, result):
+    def _get_pairs_from_distance_matrix(self, distance_mtx, result):
         """
         Greedy approach to pairing particles using the graph method.
 
