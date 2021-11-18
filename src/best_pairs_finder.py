@@ -1,7 +1,7 @@
 import numpy as np
 import itertools
-
-
+import pandas as pd
+from scipy.spatial import distance_matrix
 class BestPairsFinder:
 
     def __init__(self):
@@ -130,3 +130,12 @@ class BestPairsFinder:
         min_distance_index = np.argmin(distances)
         best_combination = combinations[min_distance_index]
         return best_combination
+
+    def _compute_distance_matrix(self, particle_positions):
+        """
+        Generate distance matrix given a set of particle positions.
+        """
+
+        df = pd.DataFrame(particle_positions)
+        dis_matrix = pd.DataFrame(distance_matrix(df.values, df.values))
+        return dis_matrix

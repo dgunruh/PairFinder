@@ -1,7 +1,7 @@
 from unittest import TestCase, skip
 import unittest
 import unittest.mock as mock
-from pairfinder.src.best_pairs_finder import BestPairsFinder
+from PairFinder.src.best_pairs_finder import BestPairsFinder
 
 
 class TestBestPairsFinder(TestCase):
@@ -121,6 +121,20 @@ class TestBestPairsFinder(TestCase):
         subject._choose_best_pair.assert_called_with(
             (combinations, summed_distances))
         self.assertEqual(result, best_pairing)
+
+    def test_compute_distance_matrix(self):
+        """
+        Test the compute_distance_matrix
+        """
+        # 1D distance matrix
+        pairs_finder = BestPairsFinder()
+        self.assertEqual(pairs_finder._compute_distance_matrix
+                          ([2, 3, 4, 6]).iloc[0, 0], 0)
+        # 2D distance matrix
+        test1 = pairs_finder._compute_distance_matrix([[2,3], [3,6], [4,5], [2,3]])
+        self.assertEqual(test1.iloc[0, 0], 0)
+        self.assertAlmostEqual(test1.iloc[1, 0], 3.16, 2)
+        self.assertEqual(len(test1.index), len(test1.columns)
 
     @skip
     def test_find_best_pairs_zero_particles(self):
