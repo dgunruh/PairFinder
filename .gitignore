@@ -1,2 +1,5 @@
-test/integration_tests/__pycache__/
+pairfinder/test/integration_tests/__pycache__/
+pairfinder/test/__pycache__/
+pairfinder/src/__pycache__/
+pairfinder/__pycache__/
 .idea
