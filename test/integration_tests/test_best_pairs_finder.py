@@ -3,24 +3,35 @@ import unittest
 import unittest.mock as mock
 import numpy as np
 from PairFinder.src.best_pairs_finder import BestPairsFinder
-
+import pandas as pd
 
 
 class TestBestPairsFinder(TestCase):
     def test_setup(self):
         self.pairs_finder = BestPairsFinder()
 
-    def test_nothing(self):
-        self.assertTrue(True)
+    def test__get_pairs_from_distance_matrix
+        """doc here"""
+        for N in range(6):
+            rand_mtx = np.random.rand(N, N)*10
+            distance_mtx = (rand_mtx + rand_mtx.T)/2
+            distance_mtx[range(N), range(N)] = np.inf
+            distance_mtx = pd.DataFrame(distance_mtx, columns=np.arange(N))
 
-    def test__check_data_type(self):
+            subject = BestPairsFinder()
+            subject.result = []
+            get_pairs_from_distance_matrix(distance_mtx, subject.result)
+
+    def test__check_iterable(self):
         """
         YIMING
-        Check if input object is a list.
+        Check if input object is iterable.
         """
         pairs_finder = BestPairsFinder()
-        self.assertTrue(pairs_finder._check_data_type(
-            particle_positions=[5, 10, 15, 20]) == list)
+        self.assertTrue(pairs_finder._check_iterable(
+            particle_positions=[5, 10, 15, 20]))
+        self.assertFalse(pairs_finder._check_iterable(
+            particle_positions=5))
 
     def test__create_pairs(self):
         """
@@ -60,8 +71,8 @@ class TestBestPairsFinder(TestCase):
         Check whether particle distance was calculated correctly.
         """
         pairs_finder = BestPairsFinder()
-        p1 = (1,2,3,4)
-        p2 = (2,1,5,1)
+        p1 = (1, 2, 3, 4)
+        p2 = (2, 1, 5, 1)
         squared_distance = 0
         for i in range(len(p2)):
             squared_distance += (p2[i] - p1[i])**2
@@ -122,7 +133,7 @@ class TestBestPairsFinder(TestCase):
                                                    return_value=best_pairing)
         # actually make the call
         particle_positions = [(1), (2), (3), (4)]
-        result = subject.find_best_pairs(particle_positions)
+        result = subject.find_best_pairs(particle_positions, method='enumerate')
         # check all functions were called correctly
         subject._check_data_type.assert_called_with(particle_positions)
         subject._create_pairs.assert_called_with(particle_positions)
@@ -132,6 +143,7 @@ class TestBestPairsFinder(TestCase):
         subject._choose_best_pair.assert_called_with(
             (combinations, summed_distances))
         self.assertEqual(result, best_pairing)
+        # TODO check method = 'graph' call
 
     @skip
     def test_find_best_pairs_zero_particles(self):
