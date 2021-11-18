@@ -44,10 +44,10 @@ class BestPairsFinder:
             # Step 2: Enumerate all pairs of particles
             pairs = self._create_pairs(particle_positions)
             # Step 3: Create combinations of these pairs
-            combinations = self._create_combinations(
+            combos = self._create_combinations(
                 pairs, [], [], len(particle_positions))
             # Step 4: Compute summed distances
-            summed_distances = self._get_summed_pair_distance(combinations)
+            summed_distances = self._get_summed_pair_distance(combos)
             # Step 5: Return combo that minimizes summed distances
             return self._choose_best_combination(combos, summed_distances)
         elif method == 'graph':
