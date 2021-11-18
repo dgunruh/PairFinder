@@ -1,6 +1,7 @@
 from unittest import TestCase, skip
 import unittest
 import unittest.mock as mock
+import numpy as np
 from PairFinder.src.best_pairs_finder import BestPairsFinder
 
 
@@ -55,17 +56,26 @@ class TestBestPairsFinder(TestCase):
 
     def test__get_pair_distance(self):
         """
-        LUQING
         Check whether particle distance was calculated correctly.
         """
-        pass
+        pairs_finder = BestPairsFinder()
+        p1 = (1,2,3,4)
+        p2 = (2,1,5,1)
+        squared_distance = 0
+        for i in range(len(p2)):
+            squared_distance += (p2[i] - p1[i])**2
+        distance = np.sqrt(squared_distance)
+        self.assertEqual(distance, pairs_finder._get_pair_distance(p1, p2))
 
     def test__get_summed_pair_distance(self):
         """
-        LUQING
         Check whether particle distances were summed correctly.
         """
-        pass
+        pairs_finder = BestPairsFinder()
+        particle_positions = [(1, 0.5), (0.6, 0.8), (0.4, 0.3), (0.0, -0.5), (0.9, 2.1), (-1.1, -0.3)]
+        combination = [(1,2), (3, 0), (5,4)]
+        rounded_distance = 5.0768
+        self.assertEqual(rounded_distance, round(pairs_finder._get_summed_pair_distance(combination, particle_positions), 4))
 
     def test__choose_best_combination(self):
         """
