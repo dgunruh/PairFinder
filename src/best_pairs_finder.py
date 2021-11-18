@@ -35,7 +35,9 @@ class BestPairsFinder:
         combinations = self._create_combinations(
             pairs, [], [], len(particle_positions))
         # Step 4: Compute summed distances
-        summed_distances = self._get_summed_pair_distance(combinations)
+        summed_distances = []
+        for c in combinations:
+            summed_distances.append(self._get_summed_pair_distance(c, particle_positions))
         # Step 5: Return combo that minimizes summed distances
         return self._choose_best_combination(combinations, summed_distances)
 
@@ -94,17 +96,23 @@ class BestPairsFinder:
                                                  already_contained_indices,
                                                  nump-1)
 
-    def _get_pair_distance(self):
+    def _get_pair_distance(self, p1, p2):
         """
         Calculate the distance between two particles.
         """
-        pass
+        return np.linalg.norm(np.subtract(p1, p2))
 
-    def _get_summed_pair_distance(self):
+    def _get_summed_pair_distance(self, combination, particle_positions):
         """
-        Sum the particle pair distances.
+        Sum the particle pair distances of a combination of particle pairs, where
+        the pairs are listed as indices of particle positions
         """
-        pass
+        distance = 0
+        for pair in combination:
+            p1 = particle_positions[pair[0]]
+            p2 = particle_positions[pair[1]]
+            distance += self._get_pair_distance(p1, p2)
+        return distance
 
     def _choose_best_combination(self, combinations, distances):
         """
