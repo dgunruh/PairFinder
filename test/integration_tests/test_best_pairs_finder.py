@@ -92,16 +92,20 @@ class TestBestPairsFinder(TestCase):
         subject._check_data_type = mock.MagicMock(name='_check_data_type',
                                                   return_value=True)
         # step 2
+        pairs = [(1, 2), (1, 3), (1, 4), (2, 3), (2, 4), (3, 4)]
+        subject._create_pairs = mock.MagicMock(
+            name='_create_pairs', return_value=pairs)
+        # step 3
         combinations = [[(1, 2), (3, 4)],
                         [(1, 3), (2, 4)],
                         [(1, 4), (2, 3)]]
         subject._create_combinations = mock.MagicMock(
             name='_create_combinations', return_value=combinations)
-        # step 3
+        # step 4
         summed_distances = [2, 4, 4]
         subject._get_summed_pair_distance = mock.MagicMock(
             name='_get_summed_pair_distance', return_value=summed_distances)
-        # step 4
+        # step 5
         best_pairing = combinations[0]
         subject._choose_best_pair = mock.MagicMock(name='_choose_best_pair',
                                                    return_value=best_pairing)
@@ -110,7 +114,9 @@ class TestBestPairsFinder(TestCase):
         result = subject.find_best_pairs(particle_positions)
         # check all functions were called correctly
         subject._check_data_type.assert_called_with(particle_positions)
-        subject._create_combinations.assert_called_with(particle_positions)
+        subject._create_pairs.assert_called_with(particle_positions)
+        subject._create_combinations.assert_called_with(
+            (pairs, [], [], len(particle_positions)))
         subject._get_summed_pair_distance.assert_called_with(combinations)
         subject._choose_best_pair.assert_called_with(
             (combinations, summed_distances))
