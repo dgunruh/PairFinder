@@ -1,3 +1,5 @@
+"""Best pairs finder."""
+
 import numpy as np
 import itertools
 import pandas as pd
@@ -58,15 +60,18 @@ class BestPairsFinder:
                                 enumerate(particle_positions)}
             # Step 3: Create distance matrix between all points
             distance_mtx = self._compute_distance_matrix(particle_positions)
-            # Step 4: Pair particles based on smallest distance
             n = len(particle_positions)
             # set diagonal to inf to prevent selecting self
+            distance_mtx = np.array(distance_mtx)
             distance_mtx[range(n), range(n)] = np.inf
+            distance_mtx = pd.DataFrame(distance_mtx)
+            # Step 4: Pair particles based on smallest distance
             self.pairs = []
             self._get_pairs_from_distance_matrix(distance_mtx, self.pairs)
             # Step 5: Convert particle indices to coordinates using map
-            converted_pairing = [(idx_to_coord_map[p1], idx_to_coord_map[p2])
-                                 for pair in self.pairs for p1, p2 in pair]
+            converted_pairing = [(idx_to_coord_map[pair[0]],
+                                  idx_to_coord_map[pair[1]])
+                                 for pair in self.pairs]
             return converted_pairing
 
     def _check_iterable(self, particle_positions):
@@ -100,13 +105,13 @@ class BestPairsFinder:
                         else:
                             new_combination_base = combination_base + \
                                 [pairs[i]]
-                            new_contained_indices = already_contained_indices\
+                            new_contained_indxs = already_contained_indices\
                                 + [pairs[i][0], pairs[i][1]]
                             new_pairs = pairs[nump - 1:]
                             new_combinations =\
                                 self._create_combinations(new_pairs,
                                                           new_combination_base,
-                                                          new_contained_indices,
+                                                          new_contained_indxs,
                                                           nump - 1)
                             if len(combinations) == 0:
                                 combinations = new_combinations
@@ -184,20 +189,21 @@ class BestPairsFinder:
             recursive call - both the distance matrix and result (pairs) change
         """
         # get size
-        N = len(distance_mtx)
+        n = len(distance_mtx)
         # stopping criteria
-        if N == 1:
+        if n == 1:
             # if odd number, return individual
             result.append((distance_mtx.columns[0],))
             return
-        if N == 0:
+        if n == 0:
             # if even number, end
             return
 
         # get minimum distance index (greedy approach)
         flatted_minimum_index = np.argmin(distance_mtx)
         # get row by colm indices of that overall minimum
-        point1_index, point2_index = np.unravel_index(flatted_minimum_index, (N, N))
+        point1_index, point2_index = np.unravel_index(flatted_minimum_index,
+                                                      (n, n))
         # get original point labels
         point1 = distance_mtx.index[point1_index]
         point2 = distance_mtx.columns[point2_index]
