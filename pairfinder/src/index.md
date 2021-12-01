@@ -2,6 +2,8 @@
 
 Given an even number of particles, this module is able to find groups of the closest possible pairs.
 
+The goal of this implementation is to solve for the global minimum of the summed distance in between particle pairs for 100 particles in fewer than 30 seconds.
+
 ## Example
 
 This is an example for 6 particles in 2 dimensions using the greedy graph approach (recommennded).
