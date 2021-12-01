@@ -126,6 +126,8 @@ class TestBestPairsFinder(TestCase):
 
     def test__get_summed_pair_distance(self):
         """Check whether particle distances were summed correctly."""
+        # Test needs to be fixed. Combination should be pairs of particle positions,
+        # not pairs of particle indices
         pairs_finder = BestPairsFinder()
         particle_positions = [(1, 0.5), (0.6, 0.8), (0.4, 0.3), (0.0, -0.5),
                               (0.9, 2.1), (-1.1, -0.3)]
