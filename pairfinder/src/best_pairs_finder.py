@@ -12,7 +12,7 @@ class BestPairsFinder:
     def __init__(self):
         """Init function."""
 
-    def find_best_pairs(self, particle_positions, method='graph'):
+    def find_best_pairs(self, particle_positions, method='greedy'):
         """
         Find pairs of closest particles given their coordinates.
 
@@ -52,7 +52,7 @@ class BestPairsFinder:
             summed_distances = self._get_summed_pair_distance(combos)
             # Step 5: Return combo that minimizes summed distances
             return self._choose_best_combination(combos, summed_distances)
-        elif method == 'graph':
+        elif method == 'greedy':
             # Step 1: Check that particle_positions is iterable
             self._check_iterable(particle_positions)
             # Step 2: Save index to coordinate map
