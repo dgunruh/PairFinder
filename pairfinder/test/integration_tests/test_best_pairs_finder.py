@@ -25,7 +25,7 @@ class TestBestPairsFinder(TestCase):
             particles = np.arange(N)
             n = 2
             expected_pairing = [tuple(particles[i * n:(i + 1) * n])
-                                for i in range((N + n - 1) // n )]
+                                for i in range((N + n - 1) // n)]
             self.assertEqual(expected_pairing, subject.result)
 
     def test__check_iterable(self):
@@ -49,9 +49,9 @@ class TestBestPairsFinder(TestCase):
         pairs = pairs_finder._create_pairs(
             particle_positions=[5, 10, 15, 20])
         self.assertTrue(type(pairs) == list)
-        self.assertTrue(type(pairs[0]) == tuple)
+        self.assertTrue(type(pairs[0]) == list)
         self.assertEqual(len(pairs), 6)  # unique pairs out of list
-        self.assertIn((1, 2), pairs)
+        self.assertIn([5, 10], pairs)
 
     def test__create_combinations(self):
         '''
@@ -59,10 +59,12 @@ class TestBestPairsFinder(TestCase):
         and checks if number of pairs in each combination is correct.
         '''
         pairs_finder = BestPairsFinder()
-        particle_pairs = [(1, 2), (1, 3), (1, 4), (1, 5), (1, 6), (2, 3), (2, 4),
-                          (2, 5), (2, 6), (3, 4), (3, 5), (3, 6), (4, 5), (4, 6), (5, 6)]
+        particle_pairs = [[1, 2], [1, 3], [1, 4], [1, 5], [1, 6], [2, 3], [2, 4],
+                          [2, 5], [2, 6], [3, 4], [3, 5], [3, 6], [4, 5], [4, 6], [5, 6]]
         combinations = pairs_finder._create_combinations(
-            particle_pairs, [], [], 6)
+            particle_pairs, 3, 5)
+        num_combinations = len(combinations)
+        self.assertEqual(num_combinations, 15)
         for combination in combinations:
             self.assertEqual(len(combination), 3)
             for index, chosen_pair in enumerate(combination):
@@ -90,10 +92,16 @@ class TestBestPairsFinder(TestCase):
         Check whether particle distances were summed correctly.
         """
         pairs_finder = BestPairsFinder()
-        particle_positions = [(1, 0.5), (0.6, 0.8), (0.4, 0.3), (0.0, -0.5), (0.9, 2.1), (-1.1, -0.3)]
-        combination = [(1,2), (3, 0), (5,4)]
-        rounded_distance = 5.0768
-        self.assertEqual(rounded_distance, round(pairs_finder._get_summed_pair_distance(combination, particle_positions), 4))
+        d1_combination = [
+            [1, 0.5], [0.6, 0.8], [0.4, 0.3], [0.0, -0.5], [0.9, 2.1], [-1.1, -0.3]]
+        d2_combination = [
+            [(1, 0.5), (0.6, 0.8)], [(0.4, 0.3), (0.0, -0.5)], [(0.9, 2.1), (-1.1, -0.3)]]
+        rounded_distance_d1_combo = 3.3
+        rounded_distance_d2_combo = 4.5185
+        self.assertEqual(rounded_distance_d1_combo, round(
+            pairs_finder._get_summed_pair_distance(d1_combination), 4))
+        self.assertEqual(rounded_distance_d2_combo, round(
+            pairs_finder._get_summed_pair_distance(d2_combination), 4))
 
     def test__choose_best_combination(self):
         """
@@ -102,13 +110,15 @@ class TestBestPairsFinder(TestCase):
         """
         pairs_finder = BestPairsFinder()
         combinations = [
-            [(1, 2), (3, 4)],
-            [(1, 3), (2, 4)],
-            [(1, 4), (2, 3)]
+            [[1, 2], [3, 4]],
+            [[1, 3], [2, 4]],
+            [[1, 4], [2, 3]]
         ]
-        summed_distances = [8, 6, 7]
-        self.assertTrue([(1, 3), (2, 4)] == pairs_finder._choose_best_combination(
-            combinations, summed_distances))
+        summed_distances = [2, 4, 4]
+        best_combination, smallest_distance = pairs_finder._choose_best_combination(
+            combinations)
+        self.assertTrue([[1, 2], [3, 4]] == best_combination)
+        self.assertTrue(2 == smallest_distance)
 
     def test_find_best_pairs(self):
         """
@@ -139,8 +149,9 @@ class TestBestPairsFinder(TestCase):
             name='_choose_best_combination',
             return_value=best_pairing)
         # actually make the call
-        particle_positions = [(1), (2), (3), (4)]
-        result = subject.find_best_pairs(particle_positions, method='enumerate')
+        particle_positions = [1, 2, 3, 4]
+        result = subject.find_best_pairs(
+            particle_positions, method='simulated_annealing')
         # check all functions were called correctly
         subject._check_data_type.assert_called_with(particle_positions)
         subject._create_pairs.assert_called_with(particle_positions)
@@ -160,12 +171,36 @@ class TestBestPairsFinder(TestCase):
         # 1D distance matrix
         pairs_finder = BestPairsFinder()
         self.assertEqual(pairs_finder._compute_distance_matrix
-                          ([2, 3, 4, 6]).iloc[0, 0], 0)
+                         ([2, 3, 4, 6]).iloc[0, 0], 0)
         # 2D distance matrix
-        test1 = pairs_finder._compute_distance_matrix([[2,3], [3,6], [4,5], [2,3]])
+        test1 = pairs_finder._compute_distance_matrix(
+            [[2, 3], [3, 6], [4, 5], [2, 3]])
         self.assertEqual(test1.iloc[0, 0], 0)
         self.assertAlmostEqual(test1.iloc[1, 0], 3.16, 2)
         self.assertEqual(len(test1.index), len(test1.columns))
+
+    def test__create_single_combination_one_dimension(self):
+        """
+        Test all methods to create a single combination of particle pairs, in
+        one dimension. Currently, these are the "linear" and "greedy" methods.
+        """
+        pairs_finder = BestPairsFinder()
+        positions = [1, -1, 10, -9, 8, -5, -3, 2, 1.5, 8.23]
+        linear_pairs = pairs_finder._create_single_combination(
+            positions, "linear")
+        for pairs in linear_pairs:
+            pairs.sort()
+        self.assertCountEqual(
+            [[-1, 1], [-9, 10], [-5, 8], [-3, 2], [1.5, 8.23]], linear_pairs)
+
+        positions = [1, -1, 10, -9, 8, -5, -3, 2, 1.5, 8.23]
+        greedy_pairs = pairs_finder._create_single_combination(
+            positions, "greedy")
+        for pairs in greedy_pairs:
+            pairs.sort()
+
+        self.assertCountEqual(
+            [[1, 1.5], [-3, -1], [8.23, 10], [-9, -5], [2, 8]], greedy_pairs)
 
     @skip
     def test_find_best_pairs_zero_particles(self):
@@ -242,7 +277,37 @@ class TestBestPairsFinder(TestCase):
         for i in pair_index:
             if (i % 2) == 0:
                 distance = distance + particles[pair_index[i + 1]]\
-                           - particles[pair_index[i]]
+                    - particles[pair_index[i]]
+
+    def test_against_brute_force_three_dimensions(self):
+        """
+        Test performance of any of the methods against the "enumerate" method,
+        which solves the problem by brute force (finding all possible
+        combinations of particle coordinates, and choosing the combination with
+        the smallest distance).
+
+        Test is conducted with 10 particles.
+        """
+        test_method = "simulated_annealing"
+
+        particle_coords = [tuple(i)
+                           for i in np.random.uniform(-100, 100, (10, 3))]
+
+        pairs_finder = BestPairsFinder()
+        brute_force_combination, brute_force_distance =\
+            pairs_finder.find_best_pairs(particle_coords, method='enumerate')
+        for pairs in brute_force_combination:
+            pairs.sort()
+
+        test_combination, test_distance =\
+            pairs_finder.find_best_pairs(particle_coords, method=test_method)
+        for pairs in test_combination:
+            pairs.sort()
+
+        self.assertCountEqual(
+            brute_force_combination, test_combination)
+        self.assertEqual(brute_force_distance, test_distance)
+
 
 if __name__ == '__main__':
     unittest.main()
