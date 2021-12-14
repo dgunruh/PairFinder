@@ -22,7 +22,7 @@ class BestPairsFinder:
             3. Create combinations of these pairs to include every particle
             4. Compute the summed pair distance for each combination
             5. Return the combination that has the smallest summed distance
-        Greedy method:
+        Graph method:
             1. Check that the input is iterable
             2. Save particle index to coordinate/ position in a dictionary
             3. Create distance matrix between all points (N x N)
@@ -52,12 +52,12 @@ class BestPairsFinder:
             summed_distances = self._get_summed_pair_distance(combos)
             # Step 5: Return combo that minimizes summed distances
             return self._choose_best_combination(combos, summed_distances)
-        elif method == 'greedy':
+        else:
             # Step 1: Check that particle_positions is iterable
             self._check_iterable(particle_positions)
             # Step 2: Save index to coordinate map
-            idx_to_coord_map = {i: coord for i, coord in
-                                enumerate(particle_positions)}
+            self.idx_to_coord_map = {i: coord for i, coord in
+                                     enumerate(particle_positions)}
             # Step 3: Create distance matrix between all points
             distance_mtx = self._compute_distance_matrix(particle_positions)
             n = len(particle_positions)
@@ -65,12 +65,13 @@ class BestPairsFinder:
             distance_mtx = np.array(distance_mtx)
             distance_mtx[range(n), range(n)] = np.inf
             distance_mtx = pd.DataFrame(distance_mtx)
-            # Step 4: Pair particles based on smallest distance
+            # Step 4: Pair particles based on specified method
             self.pairs = []
-            self._get_pairs_from_distance_matrix(distance_mtx, self.pairs)
+            self._get_pairs_from_distance_matrix(distance_mtx, self.pairs,
+                                                 method=method)
             # Step 5: Convert particle indices to coordinates using map
-            converted_pairing = [(idx_to_coord_map[pair[0]],
-                                  idx_to_coord_map[pair[1]])
+            converted_pairing = [(self.idx_to_coord_map[pair[0]],
+                                  self.idx_to_coord_map[pair[1]])
                                  for pair in self.pairs]
             return converted_pairing
 
@@ -172,7 +173,8 @@ class BestPairsFinder:
         best_combination = combinations[min_distance_index]
         return best_combination
 
-    def _get_pairs_from_distance_matrix(self, distance_mtx, result):
+    def _get_pairs_from_distance_matrix(self, distance_mtx, result,
+                                        method='greedy'):
         """
         Greedy approach to pairing particles using the graph method.
 
@@ -199,11 +201,26 @@ class BestPairsFinder:
             # if even number, end
             return
 
-        # get minimum distance index (greedy approach)
-        flatted_minimum_index = np.argmin(distance_mtx)
-        # get row by colm indices of that overall minimum
-        point1_index, point2_index = np.unravel_index(flatted_minimum_index,
-                                                      (n, n))
+        if method == 'greedy':
+            # get minimum distance index (greedy approach)
+            flatted_min_index = np.argmin(distance_mtx)
+            # get row by colm indices of that overall minimum
+            point1_index, point2_index = np.unravel_index(flatted_min_index,
+                                                          (n, n))
+        else:
+            pts_left = np.array([self.idx_to_coord_map[colm]
+                                 for colm in distance_mtx.columns])
+            if len(pts_left.shape) == 1:
+                avg = np.average(pts_left)
+            else:
+                avg = [sum(x) / len(x) for x in zip(*pts_left)]
+            distance_from_centroid = [np.linalg.norm([diff], ord=2)
+                                      for diff in pts_left - avg]
+            # get point farthest from center
+            point1_index = np.argmax(distance_from_centroid)
+            # get point that is closest to the above point
+            point2_index = np.argmin(distance_mtx.iloc[point1_index])
+
         # get original point labels
         point1 = distance_mtx.index[point1_index]
         point2 = distance_mtx.columns[point2_index]

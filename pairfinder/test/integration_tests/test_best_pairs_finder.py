@@ -6,6 +6,7 @@ import unittest.mock as mock
 import numpy as np
 from pairfinder.src.best_pairs_finder import BestPairsFinder
 import pandas as pd
+from collections import Counter
 
 
 def verify_against_one_dimensionsal_solution(particle_positions, result):
@@ -36,7 +37,8 @@ def verify_against_one_dimensionsal_solution(particle_positions, result):
         p2 = idx_to_coord_map[idx2]
         pairing.append((p1, p2))
     # Compare analytical soltion to result
-    return pairing == result
+    nonunique_pair_counter = [Counter(pair) for pair in pairing]
+    return all([Counter(pair) in nonunique_pair_counter for pair in result])
 
 
 class TestBestPairsFinder(TestCase):
@@ -50,23 +52,40 @@ class TestBestPairsFinder(TestCase):
             verify_against_one_dimensionsal_solution(particle_positions,
                                                      expected))
 
+    def test_find_best_pairs_2_dimensions(self):
+        """Test`find_best_pairs` in 2D."""
+        particle_positions = [(20, 2), (2, 3), (1, 20), (22, 3)]
+
+        subject = BestPairsFinder()
+        result = subject.find_best_pairs(particle_positions,
+                                         method='COM')
+        expected = [((1, 20), (2, 3)), ((20, 2), (22, 3))]
+        nonunique_pair_counter = [Counter(pair) for pair in expected]
+        self.assertTrue(all([Counter(pair) in nonunique_pair_counter
+                             for pair in result]))
+
     def test__get_pairs_from_distance_matrix(self):
         """Test selecting pairs based on distance matrix."""
         for N in range(6):
-            seed = np.arange(N**2).reshape(N, N)
-            distance_mtx = (seed + seed.T) / 2
-            distance_mtx[range(N), range(N)] = np.inf
-            distance_mtx = pd.DataFrame(distance_mtx, columns=np.arange(N))
+            for method in ['greedy', 'COM']:
+                seed = np.arange(N**2).reshape(N, N)
+                distance_mtx = (seed + seed.T) / 2
+                distance_mtx[range(N), range(N)] = np.inf
+                distance_mtx = pd.DataFrame(distance_mtx, columns=np.arange(N))
 
-            subject = BestPairsFinder()
-            subject.result = []
-            subject._get_pairs_from_distance_matrix(distance_mtx,
-                                                    subject.result)
-            particles = np.arange(N)
-            n = 2
-            expected_pairing = [tuple(particles[i * n:(i + 1) * n])
-                                for i in range((N + n - 1) // n)]
-            self.assertEqual(expected_pairing, subject.result)
+                particle_positions = np.arange(N)
+                n = 2
+                expected = [tuple(particle_positions[i * n:(i + 1) * n])
+                            for i in range((N + n - 1) // n)]
+
+                subject = BestPairsFinder()
+                subject.result = []
+                subject.idx_to_coord_map = {i: coord for i, coord in
+                                            enumerate(particle_positions)}
+                subject._get_pairs_from_distance_matrix(distance_mtx,
+                                                        subject.result,
+                                                        method=method)
+                self.assertEqual(expected, subject.result)
 
     def test__check_iterable(self):
         """Check if input object is iterable."""
@@ -126,8 +145,8 @@ class TestBestPairsFinder(TestCase):
 
     def test__get_summed_pair_distance(self):
         """Check whether particle distances were summed correctly."""
-        # Test needs to be fixed. Combination should be pairs of particle positions,
-        # not pairs of particle indices
+        # Test needs to be fixed. Combination should be pairs of particle
+        # positions, not pairs of particle indices
         pairs_finder = BestPairsFinder()
         particle_positions = [(1, 0.5), (0.6, 0.8), (0.4, 0.3), (0.0, -0.5),
                               (0.9, 2.1), (-1.1, -0.3)]
@@ -156,7 +175,7 @@ class TestBestPairsFinder(TestCase):
                                                        summed_distances)
         self.assertTrue(expected, result)
 
-    def test_find_best_pairs(self):
+    def test_find_best_pairs_enumerate(self):
         """Test the wrapper function `find_best_pairs` that the user calls."""
         subject = BestPairsFinder()
         # setup mocked functions
@@ -196,8 +215,35 @@ class TestBestPairsFinder(TestCase):
         subject._choose_best_combination.assert_called_with(
             combinations, summed_distances)
         self.assertEqual(result, best_pairing)
-        ####################################################
-        # TODO check method = 'graph' call
+
+    def test_find_best_pairs_graph(self):
+        """Test the wrapper function `find_best_pairs` that the user calls."""
+        particle_positions = [20, 2, 1, 22]
+
+        # test greedy
+        subject = BestPairsFinder()
+        result = subject.find_best_pairs(particle_positions,
+                                         method='greedy')
+        self.assertTrue(verify_against_one_dimensionsal_solution(
+            particle_positions, result))
+        # test COM
+        result = subject.find_best_pairs(particle_positions,
+                                         method='COM')
+        self.assertTrue(verify_against_one_dimensionsal_solution(
+            particle_positions, result))
+
+        # change dtype
+        particle_positions = [(20), (2), (1), (22)]
+        # test greedy
+        result = subject.find_best_pairs(particle_positions,
+                                         method='greedy')
+        self.assertTrue(verify_against_one_dimensionsal_solution(
+            particle_positions, result))
+        # test COM
+        result = subject.find_best_pairs(particle_positions,
+                                         method='COM')
+        self.assertTrue(verify_against_one_dimensionsal_solution(
+            particle_positions, result))
 
     def test_compute_distance_matrix(self):
         """Test the compute_distance_matrix."""
@@ -217,8 +263,7 @@ class TestBestPairsFinder(TestCase):
         """Skip."""
         pairs_finder = BestPairsFinder()
         particle_positions = list()
-        best_pairs = pairs_finder.find_best_pairs(
-            particle_positions=particle_positions)
+        best_pairs = pairs_finder.find_best_pairs(particle_positions)
         self.assertTrue((()) == best_pairs)
 
     @skip
@@ -226,8 +271,7 @@ class TestBestPairsFinder(TestCase):
         """Skip."""
         pairs_finder = BestPairsFinder()
         particle_positions = [(0., ), (2., )]
-        best_pairs = pairs_finder.find_best_pairs(
-            particle_positions=particle_positions)
+        best_pairs = pairs_finder.find_best_pairs(particle_positions)
         for pairs in best_pairs:
             pairs.sort()
         self.assertCountEqual([[(0., ), (2., )]], best_pairs)
@@ -237,8 +281,7 @@ class TestBestPairsFinder(TestCase):
         """Skip."""
         pairs_finder = BestPairsFinder()
         particle_positions = [(21, ), (1, ), (0, ), (21, )]
-        best_pairs = pairs_finder.find_best_pairs(
-            particle_positions=particle_positions)
+        best_pairs = pairs_finder.find_best_pairs(particle_positions)
         for pairs in best_pairs:
             pairs.sort()
         self.assertCountEqual([[(0, ), (1, )], [(20, ), (21, )]], best_pairs)
@@ -248,8 +291,7 @@ class TestBestPairsFinder(TestCase):
         """Skip."""
         pairs_finder = BestPairsFinder()
         particle_positions = [(0., -1.), (1., 2.)]
-        best_pairs = pairs_finder.find_best_pairs(
-            particle_positions=particle_positions)
+        best_pairs = pairs_finder.find_best_pairs(particle_positions)
         for pairs in best_pairs:
             pairs.sort()
         self.assertCountEqual([[(0., -1.), (1., 2.)]], best_pairs)
@@ -259,8 +301,7 @@ class TestBestPairsFinder(TestCase):
         """Skip."""
         pairs_finder = BestPairsFinder()
         particle_positions = [(0, 0), (1, 1), (20, 20), (21, 21)]
-        best_pairs = pairs_finder.find_best_pairs(
-            particle_positions=particle_positions)
+        best_pairs = pairs_finder.find_best_pairs(particle_positions)
         for pairs in best_pairs:
             pairs.sort()
         self.assertCountEqual(
