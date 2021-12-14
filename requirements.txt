@@ -1,2 +1,4 @@
+pandas==1.2.3
+scipy==1.7.2
 numpy==1.17.3
 mkdocs==1.0.4
