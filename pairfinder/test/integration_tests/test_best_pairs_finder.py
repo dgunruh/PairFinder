@@ -52,36 +52,40 @@ class TestBestPairsFinder(TestCase):
             verify_against_one_dimensionsal_solution(particle_positions,
                                                      expected))
 
+    def test_find_best_pairs_2_dimensions(self):
+        """Test`find_best_pairs` in 2D."""
+        particle_positions = [(20, 2), (2, 3), (1, 20), (22, 3)]
+
+        subject = BestPairsFinder()
+        result = subject.find_best_pairs(particle_positions,
+                                         method='COM')
+        expected = [((1, 20), (2, 3)), ((20, 2), (22, 3))]
+        nonunique_pair_counter = [Counter(pair) for pair in expected]
+        self.assertTrue(all([Counter(pair) in nonunique_pair_counter
+                             for pair in result]))
+
     def test__get_pairs_from_distance_matrix(self):
         """Test selecting pairs based on distance matrix."""
         for N in range(6):
-            seed = np.arange(N**2).reshape(N, N)
-            distance_mtx = (seed + seed.T) / 2
-            distance_mtx[range(N), range(N)] = np.inf
-            distance_mtx = pd.DataFrame(distance_mtx, columns=np.arange(N))
+            for method in ['greedy', 'COM']:
+                seed = np.arange(N**2).reshape(N, N)
+                distance_mtx = (seed + seed.T) / 2
+                distance_mtx[range(N), range(N)] = np.inf
+                distance_mtx = pd.DataFrame(distance_mtx, columns=np.arange(N))
 
-            # greedy method
-            subject = BestPairsFinder()
-            subject.result = []
-            subject._get_pairs_from_distance_matrix(distance_mtx,
-                                                    subject.result,
-                                                    method='greedy')
-            particles = np.arange(N)
-            n = 2
-            expected_pairing = [tuple(particles[i * n:(i + 1) * n])
-                                for i in range((N + n - 1) // n)]
-            self.assertEqual(expected_pairing, subject.result)
+                particle_positions = np.arange(N)
+                n = 2
+                expected = [tuple(particle_positions[i * n:(i + 1) * n])
+                            for i in range((N + n - 1) // n)]
 
-            # COM method
-            subject = BestPairsFinder()
-            subject.result = []
-            particle_positions = np.arange(N)
-            subject.idx_to_coord_map = {i: coord for i, coord in
-                                        enumerate(particle_positions)}
-            subject._get_pairs_from_distance_matrix(distance_mtx,
-                                                    subject.result,
-                                                    method='COM')
-            self.assertEqual(expected_pairing, subject.result)
+                subject = BestPairsFinder()
+                subject.result = []
+                subject.idx_to_coord_map = {i: coord for i, coord in
+                                            enumerate(particle_positions)}
+                subject._get_pairs_from_distance_matrix(distance_mtx,
+                                                        subject.result,
+                                                        method=method)
+                self.assertEqual(expected, subject.result)
 
     def test__check_iterable(self):
         """Check if input object is iterable."""
