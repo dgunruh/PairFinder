@@ -1,6 +1,6 @@
 """Test functions for pairfinder."""
 
-from unittest import TestCase, skip
+from unittest import TestCase
 import unittest
 import unittest.mock as mock
 import numpy as np
@@ -57,12 +57,78 @@ class TestBestPairsFinder(TestCase):
         particle_positions = [(20, 2), (2, 3), (1, 20), (22, 3)]
 
         subject = BestPairsFinder()
-        result = subject.find_best_pairs(particle_positions,
-                                         method='COM')
+        result, distances = subject.find_best_pairs(particle_positions,
+                                                    method='COM')
         expected = [((1, 20), (2, 3)), ((20, 2), (22, 3))]
         nonunique_pair_counter = [Counter(pair) for pair in expected]
         self.assertTrue(all([Counter(pair) in nonunique_pair_counter
                              for pair in result]))
+
+    def test_find_best_pairs_enumerate(self):
+        """Test the wrapper function `find_best_pairs` that the user calls."""
+        subject = BestPairsFinder()
+        # setup mocked functions
+        # step 1
+        subject._check_iterable = mock.MagicMock(name='_check_iterable',
+                                                 return_value=True)
+        # step 2
+        pairs = [(1, 2), (1, 3), (1, 4), (2, 3), (2, 4), (3, 4)]
+        subject._create_pairs = mock.MagicMock(
+            name='_create_pairs', return_value=pairs)
+        # step 3
+        combinations = [[(1, 2), (3, 4)],
+                        [(1, 3), (2, 4)],
+                        [(1, 4), (2, 3)]]
+        subject._create_combinations = mock.MagicMock(
+            name='_create_combinations', return_value=combinations)
+        # step 4
+        best_pairing = combinations[0]
+        subject._choose_best_combination = mock.MagicMock(
+            name='_choose_best_combination',
+            return_value=(best_pairing, 2))
+
+        # actually make the call
+        particle_positions = [1, 2, 3, 4]
+        result, distances = subject.find_best_pairs(
+            particle_positions, method='enumerate')
+
+        # check all functions were called correctly
+        subject._check_iterable.assert_called_with(particle_positions)
+        subject._create_pairs.assert_called_with(particle_positions)
+        subject._create_combinations.assert_called_with(
+            pairs, len(particle_positions) // 2, len(particle_positions) - 1)
+        subject._choose_best_combination.assert_called_with(combinations)
+        self.assertEqual(result, best_pairing)
+        self.assertEqual(distances, 2)
+
+    def test_find_best_pairs_graph(self):
+        """Test the wrapper function `find_best_pairs` that the user calls."""
+        particle_positions = [20, 2, 1, 22]
+
+        # test greedy
+        subject = BestPairsFinder()
+        result, distances = subject.find_best_pairs(particle_positions,
+                                                    method='greedy')
+        self.assertTrue(verify_against_one_dimensionsal_solution(
+            particle_positions, result))
+        # test COM
+        result, distances = subject.find_best_pairs(particle_positions,
+                                                    method='COM')
+        self.assertTrue(verify_against_one_dimensionsal_solution(
+            particle_positions, result))
+
+        # change dtype
+        particle_positions = [(20), (2), (1), (22)]
+        # test greedy
+        result, distances = subject.find_best_pairs(particle_positions,
+                                                    method='greedy')
+        self.assertTrue(verify_against_one_dimensionsal_solution(
+            particle_positions, result))
+        # test COM
+        result, distances = subject.find_best_pairs(particle_positions,
+                                                    method='COM')
+        self.assertTrue(verify_against_one_dimensionsal_solution(
+            particle_positions, result))
 
     def test__get_pairs_from_distance_matrix(self):
         """Test selecting pairs based on distance matrix."""
@@ -118,8 +184,9 @@ class TestBestPairsFinder(TestCase):
         and checks if number of pairs in each combination is correct.
         """
         pairs_finder = BestPairsFinder()
-        particle_pairs = [[1, 2], [1, 3], [1, 4], [1, 5], [1, 6], [2, 3], [2, 4],
-                          [2, 5], [2, 6], [3, 4], [3, 5], [3, 6], [4, 5], [4, 6], [5, 6]]
+        particle_pairs = [[1, 2], [1, 3], [1, 4], [1, 5], [1, 6], [2, 3],
+                          [2, 4], [2, 5], [2, 6], [3, 4], [3, 5], [3, 6],
+                          [4, 5], [4, 6], [5, 6]]
         combinations = pairs_finder._create_combinations(
             particle_pairs, 3, 5)
         num_combinations = len(combinations)
@@ -150,9 +217,11 @@ class TestBestPairsFinder(TestCase):
         # positions, not pairs of particle indices
         pairs_finder = BestPairsFinder()
         d1_combination = [
-            [1, 0.5], [0.6, 0.8], [0.4, 0.3], [0.0, -0.5], [0.9, 2.1], [-1.1, -0.3]]
+            [1, 0.5], [0.6, 0.8], [0.4, 0.3], [0.0, -0.5], [0.9, 2.1],
+            [-1.1, -0.3]]
         d2_combination = [
-            [(1, 0.5), (0.6, 0.8)], [(0.4, 0.3), (0.0, -0.5)], [(0.9, 2.1), (-1.1, -0.3)]]
+            [(1, 0.5), (0.6, 0.8)], [(0.4, 0.3), (0.0, -0.5)],
+            [(0.9, 2.1), (-1.1, -0.3)]]
         rounded_distance_d1_combo = 3.3
         rounded_distance_d2_combo = 4.5185
         self.assertEqual(rounded_distance_d1_combo, round(
@@ -173,83 +242,12 @@ class TestBestPairsFinder(TestCase):
             [[1, 3], [2, 4]],
             [[1, 4], [2, 3]]
         ]
-        summed_distances = [2, 4, 4]
-        best_combination, smallest_distance = pairs_finder._choose_best_combination(
+        best_combo, smallest_distance = pairs_finder._choose_best_combination(
             combinations)
-        self.assertTrue([[1, 2], [3, 4]] == best_combination)
+        self.assertTrue([[1, 2], [3, 4]] == best_combo)
         self.assertTrue(2 == smallest_distance)
 
-    def test_find_best_pairs_enumerate(self):
-        """Test the wrapper function `find_best_pairs` that the user calls."""
-        subject = BestPairsFinder()
-        # setup mocked functions
-        # step 1
-        subject._check_data_type = mock.MagicMock(name='_check_data_type',
-                                                  return_value=True)
-        # step 2
-        pairs = [(1, 2), (1, 3), (1, 4), (2, 3), (2, 4), (3, 4)]
-        subject._create_pairs = mock.MagicMock(
-            name='_create_pairs', return_value=pairs)
-        # step 3
-        combinations = [[(1, 2), (3, 4)],
-                        [(1, 3), (2, 4)],
-                        [(1, 4), (2, 3)]]
-        subject._create_combinations = mock.MagicMock(
-            name='_create_combinations', return_value=combinations)
-        # step 4
-        summed_distances = [1, 1, 1]
-        subject._get_summed_pair_distance = mock.MagicMock(
-            name='_get_summed_pair_distance', return_value=summed_distances)
-        # step 5
-        best_pairing = combinations[0]
-        subject._choose_best_combination = mock.MagicMock(
-            name='_choose_best_combination',
-            return_value=best_pairing)
-        # actually make the call
-        particle_positions = [1, 2, 3, 4]
-        result = subject.find_best_pairs(
-            particle_positions, method='simulated_annealing')
-        # check all functions were called correctly
-        subject._check_data_type.assert_called_with(particle_positions)
-        subject._create_pairs.assert_called_with(particle_positions)
-        subject._create_combinations.assert_called_with(
-            pairs, [], [], len(particle_positions))
-        subject._get_summed_pair_distance.assert_called_with(
-            combinations)
-        subject._choose_best_combination.assert_called_with(
-            combinations, summed_distances)
-        self.assertEqual(result, best_pairing)
-
-    def test_find_best_pairs_graph(self):
-        """Test the wrapper function `find_best_pairs` that the user calls."""
-        particle_positions = [20, 2, 1, 22]
-
-        # test greedy
-        subject = BestPairsFinder()
-        result = subject.find_best_pairs(particle_positions,
-                                         method='greedy')
-        self.assertTrue(verify_against_one_dimensionsal_solution(
-            particle_positions, result))
-        # test COM
-        result = subject.find_best_pairs(particle_positions,
-                                         method='COM')
-        self.assertTrue(verify_against_one_dimensionsal_solution(
-            particle_positions, result))
-
-        # change dtype
-        particle_positions = [(20), (2), (1), (22)]
-        # test greedy
-        result = subject.find_best_pairs(particle_positions,
-                                         method='greedy')
-        self.assertTrue(verify_against_one_dimensionsal_solution(
-            particle_positions, result))
-        # test COM
-        result = subject.find_best_pairs(particle_positions,
-                                         method='COM')
-        self.assertTrue(verify_against_one_dimensionsal_solution(
-            particle_positions, result))
-
-    def test_compute_distance_matrix(self):
+    def test__compute_distance_matrix(self):
         """Test the compute_distance_matrix."""
         # 1D distance matrix
         pairs_finder = BestPairsFinder()
@@ -264,8 +262,9 @@ class TestBestPairsFinder(TestCase):
 
     def test__create_single_combination_one_dimension(self):
         """
-        Test all methods to create a single combination of particle pairs, in
-        one dimension. Currently, these are the "linear" and "greedy" methods.
+        Test all methods to create a single combo of particle pairs in 1D.
+
+        Currently, these are the "linear" and "greedy" methods.
         """
         pairs_finder = BestPairsFinder()
         positions = [1, -1, 10, -9, 8, -5, -3, 2, 1.5, 8.23]
@@ -285,83 +284,66 @@ class TestBestPairsFinder(TestCase):
         self.assertCountEqual(
             [[1, 1.5], [-3, -1], [8.23, 10], [-9, -5], [2, 8]], greedy_pairs)
 
-    @skip
-    def test_find_best_pairs_zero_particles(self):
-        """Skip."""
-        pairs_finder = BestPairsFinder()
-        particle_positions = list()
-        best_pairs = pairs_finder.find_best_pairs(particle_positions)
-        self.assertTrue((()) == best_pairs)
+    def test_counter_combo_check(self):
+        """Make sure looking for unique counts works like it should."""
+        test_combination = [(1, 2), (3, 4)]
+        brute_force_combination = [(4, 3), (2, 1)]
 
-    @skip
-    def test_find_best_pairs_two_particles_in_one_dimensions(self):
-        """Skip."""
-        pairs_finder = BestPairsFinder()
-        particle_positions = [(0., ), (2., )]
-        best_pairs = pairs_finder.find_best_pairs(particle_positions)
-        for pairs in best_pairs:
-            pairs.sort()
-        self.assertCountEqual([[(0., ), (2., )]], best_pairs)
+        enumerate_pair_counter = [Counter(pair)
+                                  for pair in brute_force_combination]
+        self.assertTrue(all([Counter(pair) in enumerate_pair_counter
+                        for pair in test_combination]))
 
-    @skip
-    def test_find_best_pairs_four_particles_in_one_dimensions(self):
-        """Skip."""
-        pairs_finder = BestPairsFinder()
-        particle_positions = [(21, ), (1, ), (0, ), (21, )]
-        best_pairs = pairs_finder.find_best_pairs(particle_positions)
-        for pairs in best_pairs:
-            pairs.sort()
-        self.assertCountEqual([[(0, ), (1, )], [(20, ), (21, )]], best_pairs)
+        test_combination = [(1, 2), (3, 4)]
+        brute_force_combination = [(4, 2), (3, 1)]
 
-    @skip
-    def test_find_best_pairs_two_particles_in_two_dimensions(self):
-        """Skip."""
-        pairs_finder = BestPairsFinder()
-        particle_positions = [(0., -1.), (1., 2.)]
-        best_pairs = pairs_finder.find_best_pairs(particle_positions)
-        for pairs in best_pairs:
-            pairs.sort()
-        self.assertCountEqual([[(0., -1.), (1., 2.)]], best_pairs)
+        enumerate_pair_counter = [Counter(pair)
+                                  for pair in brute_force_combination]
+        self.assertFalse(all([Counter(pair) in enumerate_pair_counter
+                         for pair in test_combination]))
 
-    @skip
-    def test_find_best_pairs_four_particles_in_two_dimensions(self):
-        """Skip."""
-        pairs_finder = BestPairsFinder()
-        particle_positions = [(0, 0), (1, 1), (20, 20), (21, 21)]
-        best_pairs = pairs_finder.find_best_pairs(particle_positions)
-        for pairs in best_pairs:
-            pairs.sort()
-        self.assertCountEqual(
-            [[(0, 0), (1, 1)], [(20, 20), (21, 21)]], best_pairs)
-
-    def test_against_brute_force_three_dimensions(self):
+    def verify_against_brute_force_three_dimensions(self, seed=42,
+                                                    test_method="greedy"):
         """
-        Test performance of any of the methods against the "enumerate" method,
-        which solves the problem by brute force (finding all possible
-        combinations of particle coordinates, and choosing the combination with
-        the smallest distance).
+        Test performance of any of the methods against the "enumerate" method.
 
-        Test is conducted with 10 particles.
+        Enumerate method solves the problem by brute force (finding all
+        possible combinations of particle coordinates, and choosing the
+        combination with the smallest distance).
+
+        Test is conducted with 4 particles.
         """
-        test_method = "simulated_annealing"
-
+        np.random.seed(seed)
         particle_coords = [tuple(i)
-                           for i in np.random.uniform(-100, 100, (10, 3))]
+                           for i in np.random.uniform(-100, 100, (4, 3))]
 
         pairs_finder = BestPairsFinder()
         brute_force_combination, brute_force_distance =\
             pairs_finder.find_best_pairs(particle_coords, method='enumerate')
-        for pairs in brute_force_combination:
-            pairs.sort()
+        enumerate_pair_counter = [Counter(pair)
+                                  for pair in brute_force_combination]
 
         test_combination, test_distance =\
             pairs_finder.find_best_pairs(particle_coords, method=test_method)
-        for pairs in test_combination:
-            pairs.sort()
 
-        self.assertCountEqual(
-            brute_force_combination, test_combination)
-        self.assertEqual(brute_force_distance, test_distance)
+        self.assertTrue(all([Counter(pair) in enumerate_pair_counter
+                            for pair in test_combination]))
+
+    def test_against_brute_force_three_dimensions_simulated_annealing(self):
+        """Test simulated_annealing against the brute force method."""
+        self.verify_against_brute_force_three_dimensions(
+            test_method='simulated_annealing')
+
+    def test_against_brute_force_three_dimensions_greedy(self):
+        """Test greedy against the brute force method."""
+        self.verify_against_brute_force_three_dimensions(
+            test_method='greedy')
+
+    def test_against_brute_force_three_dimensions_com(self):
+        """Test COM against the brute force method."""
+        self.verify_against_brute_force_three_dimensions(
+            test_method='COM')
+
 
 if __name__ == '__main__':
     unittest.main()
