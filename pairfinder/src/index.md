@@ -6,7 +6,7 @@ The goal of this implementation is to solve for the global minimum of the summed
 
 ## Example
 
-This is an example for 6 particles in 2 dimensions using the greedy graph approach (recommennded).
+This is an example for 6 particles in 2 dimensions using the greedy graph approach (recommended).
 
 ```
 from pairfinder.src.best_pairs_finder import BestPairsFinder
@@ -25,4 +25,4 @@ There are three different method options for finding the optimal pairing:
 2. Greedy (using a graph-based approach)
 3. Monte Carlo (using a stochastic approach)
 
-The ```enumerate``` option scales poorly and is not recommned for 14+ particles.
+The ```enumerate``` option scales poorly and is not recommned for 16+ particles.

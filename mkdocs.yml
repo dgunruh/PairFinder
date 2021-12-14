@@ -1,3 +1,13 @@
 site_name: My Docs
 docs_dir: pairfinder/src
 theme: readthedocs
+
+plugins:
+  - search
+  - mkdocstrings
+
+nav:
+  - Home: index.md
+  - Installation: installation.md
+  - Code Reference:
+    - PairFinder: pairfinder-reference.md
