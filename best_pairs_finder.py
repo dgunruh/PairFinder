@@ -14,38 +14,75 @@ class BestPairsFinder:
 
     def find_best_pairs(self, particle_positions, method='greedy'):
         """
-        Find pairs of closest particles given their coordinates.
+        Find pairs of closest particles given their coordinates. Multiple
+        methods are implemented, and each method functions slightly
+        differently. The methods are:
 
         Enumerate method:
+
             1. Check that the input is iterable
-            2. Enumarate every possible particle pairing
+
+            2. Enumerate every possible particle pairing
+
             3. Create combinations of these pairs to include every particle
+
             4. Return the combination that has the smallest summed distance
+
         Graph method (both greedy and COM):
+
             1. Check that the input is iterable
+
             2. Save particle index to coordinate/ position in a dictionary
+
             3. Create distance matrix between all points (N x N)
+
             4. Pair particles using greedy or center of mass approach
+
             5. Convert paired particles from indices to coordinates and return
+
         Simulated annealing method:
+
             1. Check that the input particles object is iterable
+
             2. Create initial pairs of particles using various methods:
+
                 2a. Linear pairing (pair in order of indices)
+
                 2b. Random pairing (pair randomly until no particles remain)
+
                 2c. Greedy pairing (pair particles in smallest distance order)
+
             3. Run simulated annealing with set beta parameters (max, min and
                 step size), and number of annealing steps per beta step.
 
-        Arguments:
-            particle_positions - positions of N particles in D dimensions
+        Parameters
+        ----------
+        particle_positions : `list`
 
-        Returns:
-            paired_particles - list of particle pairs
-                These pairs minimize the overall distances between particles
+            positions of N particles in D dimensions
 
-        args*:
-            method - which method to choose from, either 'enumerate' or 'graph'
-                Default = 'graph'
+        method : `string`, *optional*
+
+            The method by which the best pairs are found. Options are
+            "enumerate", "greedy", "COM" and "simulated-annealing".
+            By default, the method is `"greedy"`.
+
+        Returns
+        -------
+        paired_particles : `list`
+
+            Combination of pairs which minimizes the overall distances
+            between particles.
+
+        Examples
+        --------
+        Find the optimal pairing of 6 particles in 2-dimensions using the
+        `"greedy"` graph approach:
+
+            >>> finder = BestPairsFinder()
+            >>> particle_positions = create_even_number_of_particles(6, 2, seed=42)
+            >>> pairing, distance = finder.find_best_pairs(particle_positions,\
+                method='greedy')
         """
         if method == 'enumerate':
             # Step 1: Check that particle_positions is iterable
