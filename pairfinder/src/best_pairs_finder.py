@@ -65,7 +65,7 @@ class BestPairsFinder:
             distance_mtx = np.array(distance_mtx)
             distance_mtx[range(n), range(n)] = np.inf
             distance_mtx = pd.DataFrame(distance_mtx)
-            # Step 4: Pair particles based on smallest distance
+            # Step 4: Pair particles based on specified method
             self.pairs = []
             self._get_pairs_from_distance_matrix(distance_mtx, self.pairs,
                                                  method=method)
@@ -208,13 +208,18 @@ class BestPairsFinder:
             point1_index, point2_index = np.unravel_index(flatted_min_index,
                                                           (n, n))
         else:
-            pts_left = np.array(self.idx_to_coord_map[distance_mtx.columns])
-            avg = np.average(pts_left, axis=1)
-            dist_from_center = np.linalg.norm(pts_left - avg, ord=2)
+            pts_left = np.array([self.idx_to_coord_map[colm]
+                                 for colm in distance_mtx.columns])
+            if len(pts_left.shape) == 1:
+                avg = np.average(pts_left)
+            else:
+                avg = [sum(x) / len(x) for x in zip(*pts_left)]
+            distance_from_centroid = [np.linalg.norm([diff], ord=2)
+                                      for diff in pts_left - avg]
             # get point farthest from center
-            point1_index = np.argmax(dist_from_center)
+            point1_index = np.argmax(distance_from_centroid)
             # get point that is closest to the above point
-            point2_index = np.argmin(distance_mtx.index[point1_index])
+            point2_index = np.argmin(distance_mtx.iloc[point1_index])
 
         # get original point labels
         point1 = distance_mtx.index[point1_index]
