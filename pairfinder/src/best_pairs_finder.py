@@ -20,8 +20,7 @@ class BestPairsFinder:
             1. Check that the input is iterable
             2. Enumarate every possible particle pairing
             3. Create combinations of these pairs to include every particle
-            4. Compute the summed pair distance for each combination
-            5. Return the combination that has the smallest summed distance
+            4. Return the combination that has the smallest summed distance
         Graph method (both greedy and COM):
             1. Check that the input is iterable
             2. Save particle index to coordinate/ position in a dictionary
@@ -294,14 +293,12 @@ class BestPairsFinder:
                 smallest_particle = None
                 smallest_particle_index = 1
                 p1 = available_pool[0]
-                print(f"p1: {p1}")
                 for j, p2 in enumerate(available_pool[1:]):
                     distance = self._get_pair_distance(p1, p2)
                     if distance < smallest_distance:
                         smallest_distance = distance
                         smallest_particle = p2
                         smallest_particle_index = j + 1
-                print(f"p2: {smallest_particle}")
                 pairs.append([p1, smallest_particle])
                 available_pool.pop(smallest_particle_index)
                 available_pool.pop(0)
