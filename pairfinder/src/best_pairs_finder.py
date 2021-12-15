@@ -91,6 +91,14 @@ class BestPairsFinder:
             return self.pairs,\
                 self._get_summed_pair_distance(self.pairs)
 
+        """
+        if method == 'simple_monte_carlo':
+            self._simple_mc
+            return pairs_simple_mc
+        """
+
+
+
     def _check_iterable(self, particle_positions):
         """Check if input is iterable."""
         try:
@@ -424,3 +432,53 @@ class BestPairsFinder:
             if np.random.uniform() < success_probability:
                 return True
         return False
+
+    """
+    def _simple_mc
+        # Generate 2D 100 particles with indexes and positions
+        particles=np.zeros([100,4])
+        loop_index=0
+        particle_index=0
+        for i in particles:
+            particles[loop_index][0]=loop_index+1
+            particles[loop_index][1]=loop_index+1
+            particles[loop_index][2]=random.uniform(-100,100)
+            particles[loop_index][3]=random.uniform(-100,100)
+            loop_index=loop_index+1
+            # Calculate initial pair distance sum
+        # Initially group pairs by index (1,2), (3,4), ...
+        pair_distance_sum = 0
+        pair_distance = 0
+        loop_index = 0
+        for i in particles:
+            if (particles[loop_index][0] % 2) == 1:
+                pair_distance = np.sqrt(np.square(particles[loop_index][2] - particles[loop_index + 1][2]) + np.square(particles[loop_index][3] - particles[loop_index + 1][3]))
+                pair_distance_sum = pair_distance_sum + pair_distance
+            loop_index = loop_index + 1
+        # print(pair_distance)
+        # print('initial pair_distance_sum: ' + str(pair_distance_sum))
+
+        # Monte Carlo steps
+        for j in range(1, 10001):
+            switch_index1 = random.randint(1, 100)
+            switch_index2 = random.randint(1, 100)
+            particles[switch_index1 - 1][1:4], particles[switch_index2 - 1][1:4] = particles[switch_index2 - 1][1:4], particles[switch_index1 - 1][1:4]
+
+            pair_distance_sum_new = 0
+            loop_index = 0
+            for i in particles:
+                if (particles[loop_index][0] % 2) == 1:
+                    pair_distance = np.sqrt(
+                        np.square(particles[loop_index][2] - particles[loop_index + 1][2]) + np.square(particles[loop_index][3] - particles[loop_index + 1][3]))
+                    pair_distance_sum_new = pair_distance_sum_new + pair_distance
+                loop_index = loop_index + 1
+                # print(pair_distance)
+                # print(pair_distance_sum_new)
+            if pair_distance_sum_new < pair_distance_sum:
+                pair_distance_sum = pair_distance_sum_new
+            else:
+                particles[switch_index1 - 1][1:4], particles[switch_index2 - 1][1:4] = particles[switch_index2 - 1][1:4], particles[switch_index1 - 1][1:4]
+            # print('MC' + str(j) + ': ' + str(pair_distance_sum))
+        pairs_simple_mc = [i[1] for i in particles]
+        return pairs_simple_mc
+        """
