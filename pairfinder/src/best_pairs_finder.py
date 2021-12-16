@@ -116,7 +116,7 @@ class BestPairsFinder:
                                   self.idx_to_coord_map[pair[1]])
                                  for pair in self.pairs]
             return converted_pairing,\
-                self._get_summed_pair_distance(self.pairs)
+                self._get_summed_pair_distance(converted_pairing)
         elif method == 'simulated_annealing':
             # Step 1: Check that particle_positions is iterable
             self._check_iterable(particle_positions)
@@ -124,7 +124,7 @@ class BestPairsFinder:
             self.pairs = self._create_single_combination(
                 particle_positions, "greedy")
             # Run simulated annealing with set parameters
-            self._run_simulated_annealing(self.pairs, 5000, 10, 1, 0.2)
+            self._run_simulated_annealing(self.pairs, 10000, 100, 0.25, 0.25)
             return self.pairs,\
                 self._get_summed_pair_distance(self.pairs)
 
@@ -363,6 +363,7 @@ class BestPairsFinder:
         # compute total distance of starting pairs
         current_total_distance = self._get_summed_pair_distance(pairs)
         for beta in np.arange(beta_min, beta_max, beta_step):
+            print(beta)
             for n in range(N):
                 pair1, pair2, pair_indices, proposed_distance_one,\
                     proposed_distance_two =\

@@ -12,7 +12,7 @@ or equivalently `pip install /path/to/this/directory/`.
 
 ## Example particle generator
 
-If you wouldl like to use a particle generator, one is available in `test/particle_generator.py`. An example use is shown in `Tutorial 1` under `Tutorials/`.
+If you would like to use a particle generator, one is available in `test/particle_generator.py`. An example use is shown in `Tutorial 1` under `Tutorials/`.
 
 ## Tutorial
 
@@ -22,7 +22,7 @@ A tutorial using a Jupyter notebook can be found in the `Tutorials/` directory. 
 
 #### Brute force approach
 
-`enumerate` - the enumerate method is the brute force approach to the problem. NOTE: This is not recommmended for 16+ particles. This method calculates every single possible combination of pairs of particles, finds the 
+`enumerate` - the enumerate method is the brute force approach to the problem. NOTE: This is not recommmended for 16+ particles. This method calculates every single possible combination of pairs of particles, finds the summed distance for each combination, and returns the combination corresponding to the minimum summed distance between pairs.
 
 #### Graph-based approaches
 
@@ -38,11 +38,17 @@ A tutorial using a Jupyter notebook can be found in the `Tutorials/` directory. 
 
 ## Results
 
+![enumerate_10_particles](Figures/enumerate_10_particles.png)
+
 ![COM_10_particles](Figures/COM_10_particles.png)
 ![COM_100_particles](Figures/COM_100_particles.png)
 ![greedy_10_particles](Figures/greedy_10_particles.png)
 ![greedy_100_particles](Figures/greedy_100_particles.png)
 
+![simulated_annealing_10_particles](Figures/simulated_annealing_10_particles.png)
+
+![simulated_annealing_100_particles](Figures/simulated_annealing_100_particles.png)
+
 ## Discussion
 
-Both graph-based approaches (greedy and COM) are really fast. Although the COM seems to do better than the greedy approach for smaller sets (~10), they both do poorly on 100 particles. Even though the simulated annealing approach is the slowest, it gets closest to the global minimum (according to our tests on 10 particles in 3 dimesnions).
+Both graph-based approaches (greedy and COM) are really fast. Although the COM seems to do better than the greedy approach for smaller sets (~10), they both do poorly on 100 particles. Even though the simulated annealing approach is the slowest, it gets closest to the global minimum (according to our tests on 10 particles in 3 dimensions).
