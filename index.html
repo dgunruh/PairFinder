@@ -112,13 +112,14 @@ particle_positions = [(1, 2), (1, 3), (1, 4), (2, 3), (2, 4), (3, 4)]
 pairing = finder.find_best_pairs(particle_positions, method='greedy')
 </code></pre>
 <h2 id="methods">Methods</h2>
-<p>There are three different method options for finding the optimal pairing:</p>
+<p>There are four different method options for finding the optimal pairing:</p>
 <ol>
-<li>Enumerate (brute force)</li>
-<li>Greedy (using a graph-based approach)</li>
-<li>Monte Carlo (using a stochastic approach)</li>
+<li><code>enumerate</code> (brute force method)</li>
+<li><code>greedy</code> (naive graph-based approach)</li>
+<li><code>COM</code> (informed graph-based approach)</li>
+<li><code>simulated_annealing</code> (Monte Carlo stochastic process)</li>
 </ol>
-<p>The <code>enumerate</code> option scales poorly and is not recommned for 16+ particles.</p>
+<p>The <code>enumerate</code> option scales poorly and is not recommended for 16+ particles.</p>
               
             </div>
           </div>
@@ -173,5 +174,5 @@ pairing = finder.find_best_pairs(particle_positions, method='greedy')
 
 <!--
 MkDocs version : 1.2.3
-Build Date UTC : 2021-12-14 17:49:40.803986+00:00
+Build Date UTC : 2021-12-16 15:56:27.929276+00:00
 -->
