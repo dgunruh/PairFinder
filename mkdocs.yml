@@ -5,9 +5,11 @@ theme: readthedocs
 plugins:
   - search
   - mkdocstrings
+  - mkdocs-jupyter
 
 nav:
   - Home: index.md
   - Installation: installation.md
+  - Tutorial: tutorial1.ipynb
   - Code Reference:
     - PairFinder: pairfinder-reference.md
