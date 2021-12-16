@@ -22,7 +22,7 @@ A tutorial using a Jupyter notebook can be found in the `Tutorials/` directory. 
 
 #### Brute force approach
 
-`enumerate` - the enumerate method is the brute force approach to the problem. NOTE: This is not recommmended for 16+ particles. This method calculates every single possible combination of pairs of particles, finds the 
+`enumerate` - the enumerate method is the brute force approach to the problem. NOTE: This is not recommmended for 14+ particles. This method calculates every single possible combination of pairs of particles, finds the summed distance for each combination, and returns the combination corresponding to the minimum summed distance between pairs.
 
 #### Graph-based approaches
 
