@@ -21,8 +21,9 @@ pairing = finder.find_best_pairs(particle_positions, method='greedy')
 
 There are three different method options for finding the optimal pairing:
 
-1. Enumerate (brute force)
-2. Greedy (using a graph-based approach)
-3. Monte Carlo (using a stochastic approach)
+1. `enumerate` (brute force method)
+2. `greedy` (naive graph-based approach)
+3. `COM` (informed graph-based approach)
+3. `simulated_annealing` (Monte Carlo stochastic process)
 
 The ```enumerate``` option scales poorly and is not recommned for 14+ particles.
